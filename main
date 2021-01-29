@@ -1,0 +1,95 @@
+import pygame
+
+pygame.init()
+
+
+def setka(screen):
+    pygame.draw.line(screen, (0, 0, 0), (100, 0), (100, 300), 3)
+    pygame.draw.line(screen, (0, 0, 0), (200, 0), (200, 300), 3)
+    pygame.draw.line(screen, (0, 0, 0), (0, 100), (300, 100), 3)
+    pygame.draw.line(screen, (0, 0, 0), (0, 200), (300, 200), 3)
+
+
+def draw_symb(screen, pole):
+    for i in range(3):
+        for j in range(3):
+            if pole[i][j] == "0":
+                pygame.draw.circle(screen, (255, 128, 0), (j * 100 + 50, i * 100 + 50), 45)
+            elif pole[i][j] == "x":
+                pygame.draw.line(screen, (255, 255, 0), (j * 100 + 5, i * 100 + 5), (j * 100 + 95, i * 100 + 95), 3)
+                pygame.draw.line(screen, (255, 255, 0), (j * 100 + 95, i * 100 + 5), (j * 100 + 5, i * 100 + 95), 3)
+
+
+def check_win(pole, symbol):
+    win = False
+    for line in pole:
+        if line.count(symbol) == 3:
+            win = True
+    for i in range(3):
+        if pole[0][i] == pole[1][i] == pole[2][i] == symbol:
+            win = True
+    if pole[0][0] == pole[1][1] == pole[2][2] == symbol:
+        win = True
+    if pole[0][2] == pole[1][1] == pole[2][0] == symbol:
+        win = True
+    return win
+
+
+SCREEN_SIZE = (300, 300)
+
+window = pygame.display.set_mode(SCREEN_SIZE)
+screen = pygame.Surface(SCREEN_SIZE)
+
+pygame.display.set_caption("Крестики-нолики")
+screen.fill((55, 255, 255))
+
+pole = [["", "", ""],
+        ["", "", ""],
+        ["", "", ""]]
+mainloop = True
+game_over = False
+turn = False
+
+while mainloop:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            mainloop = False
+        if turn and event.type == pygame.MOUSEBUTTONDOWN and not game_over:
+            pos = pygame.mouse.get_pos()
+            if pole[pos[1] // 100][pos[0] // 100] == "":
+                pole[pos[1] // 100][pos[0] // 100] = "x"
+                turn = False
+            player1_win = check_win(pole, "x")
+            player2_win = check_win(pole, "0")
+            if player1_win or player2_win:
+                game_over = True
+                if player1_win:
+                    pygame.display.set_caption("Игрок1 победил")
+                elif player2_win:
+                    pygame.display.set_caption("Игрок2 победил")
+            elif pole[0].count("x") + pole[0].count("0") + pole[1].count("x") + \
+                    pole[1].count("0") + pole[2].count("x") + pole[2].count("0") == 8:
+                game_over = True
+                pygame.display.set_caption("Ничья")
+        elif not turn and event.type == pygame.MOUSEBUTTONDOWN and not game_over:
+            pos = pygame.mouse.get_pos()
+            if pole[pos[1] // 100][pos[0] // 100] == "":
+                pole[pos[1] // 100][pos[0] // 100] = "0"
+                turn = True
+            player1_win = check_win(pole, "x")
+            player2_win = check_win(pole, "0")
+            if player1_win or player2_win:
+                game_over = True
+                if player1_win:
+                    pygame.display.set_caption("Игрок1 победил")
+                elif player2_win:
+                    pygame.display.set_caption("Игрок2 победил")
+            elif pole[0].count("x") + pole[0].count("0") + pole[1].count("x") + \
+                    pole[1].count("0") + pole[2].count("x") + pole[2].count("0") == 8:
+                game_over = True
+                pygame.display.set_caption("Ничья")
+
+    draw_symb(screen, pole)
+    setka(screen)
+    window.blit(screen, (0, 0))
+    pygame.display.update()
